@@ -1,22 +1,12 @@
-import {Fragment} from 'react';
-import mealsImage from '../../assets/meals.jpg';
-import classes from './Header.module.css';
-import HeaderCartButton from './HeaderCartButton';
-
-const Header = props => {
-
+import React from "react";
+import { Container } from "react-bootstrap";
+const Header = () => {
     return (
-     <Fragment>
-        <header className = {classes.header}>
-            <h1>ReactMeals</h1>
-            <HeaderCartButton/>
-        </header>
-        <div className = {classes ['main-image']}>
-           <img src = {mealsImage} alt ='A table full of food'/> 
-        </div>
-
-    </Fragment>
-    );
-};
+        <>
+            <Container  className="mt-5 p-4 text-center w-100 h1" fluid>
+                    The Generics
+            </Container>
+        </>
+    )
+}
 export default Header;
-
