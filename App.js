@@ -1,26 +1,40 @@
-import React , {Fragment , useState} from 'react';
-import Header from './components/Layout/Header';
-import Meals from './components/Meals/Meals';
-import Cart from  './components/Cart/Cart';
+import React, {  useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Product from './Components/Product';
+import Cart from './Components/Cart';
+
 
 function App() {
-  const[cartIsShown, setCartIsShown] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
 
-  const showCartHandler = ()=>{
-    setCartIsShown(true)
+  const handleAddToCart = (product) => {
+    setCartItems([...cartItems, product]);
   };
-  const hideCartHandler = () => {
-    setCartIsShown(false)
-  };
+
   return (
-    <Fragment>
-      {cartIsShown && <Cart  onClose={hideCartHandler}/>}
-      <Header onShowCart= {showCartHandler}/>
-      <main>
-        <Meals />
-      </main>
-    </Fragment>
+    <Router>
+      <div className="App">
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Product</Link>
+            </li>
+            <li>
+              <Link to="/cart">Cart ({cartItems.length})</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <div>
+          <Routes>
+            <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
+            <Route path="/" element={<Product handleAddToCart={handleAddToCart} />} />
+          </Routes>
+        </div>
+        
+      </div>
+    </Router>
   );
-};
+}
 
 export default App;
