@@ -1,62 +1,106 @@
-import React, { useContext, useEffect } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Navigate, Route } from 'react-router-dom';
+import './App.css';
+import Home from './Home/Home';
+import Root from './MainNavigation/Root';
+import { lazy, Suspense, useContext } from 'react';
+import Econtext from './Store/ecom-context';
+import Header from './Layout/Header';
+import Footer from './Layout/Footer';
+import { Container } from 'react-bootstrap';
+const NotFound = lazy(() => import('./NotFound/NotFound'));
+const SignupForm = lazy(() => import('./SignUp/SignUpForm'));
+const Account = lazy(() => import('./UserAccount/Account'));
+const About = lazy(() => import('./About/About'));
+const Product = lazy(() => import('./Product/Product'));
+const ContactUs = lazy(() => import('./Contact/Contact'));
+const Login = lazy(() => import('./Login/Login'));
+const ProductDetailsPage = lazy(() => import('./Product/ProductDetailsPage'))
+const Cart = lazy(() => import('./Cart/Cart'))
 
-import "./App.css";
-import Store from "./Pages/store";
-import Home from "./Pages/Home";
-import About from "./Pages/About";
-import LayOut from "./Components/Layouts/LayOut";
-import ContactUs from "./Pages/ContactUs";
-import ProductDetail from "./Components/Products/ProductDetail";
-import AuthContext from "./store/AuthContext";
-import AuthForm from "./Components/Auth/AuthForm";
-import CartContext from "./store/CartContext";
-
-function App() {
-  const authCtx = useContext(AuthContext);
-  const cartCtx = useContext(CartContext);
-  const Navigate = useNavigate(); // Use the useNavigate hook to get the navigate function
-
-  useEffect(() => {
-    if (authCtx.isLogin) {
-      const email = localStorage.getItem("email");
-      fetch(
-        `https://crudcrud.com/api/496c4482bb2a48c494a94267035d6452/ecom${email}`
-      )
-        .then((res) => {
-          return res.json().then((data) => {
-            for (const key in data) {
-              cartCtx.getItem({ ...data[key] });
-              console.log(data[key]._id);
-            }
-          });
-        })
-        .catch((err) => alert(err.message));
-    }
-  }, [authCtx.isLogin]);
-
+const App = () => {
+  const ctx = useContext(Econtext);
   return (
-    <>
-      <LayOut>
-        <Routes>
-          <Route path="/" element={<Navigate to="/Home" />} />
-          <Route path="/login" element={<AuthForm />} />
-          <Route path="/Home" element={<Home />} />
-          {authCtx.isLogin ? (
-            <Route path="/Store" element={<Store />} />
-          ) : (
-            <Route
-              path="/Store"
-              element={<Navigate to="/login" replace />}
-            />
-          )}
-          <Route path="/About" element={<About />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/Store/:id" element={<ProductDetail />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </LayOut>
-    </>
+    <div>
+      
+      <Container className='overflow-auto h-100 p-0' fluid>
+        <Suspense fallback={<p>Loading...</p>}>
+          <Root>
+            <Routes>
+              <Route path='/' element={<Navigate to='/home' replace />} />
+              <Route path='/home' element={
+                <>
+                  <Header />
+                  <Home />
+                  <Footer />
+                </>
+              } />
+              {ctx.isLogedin && <Route path='/Login/Product/:email' element={
+                <>
+                  <Header />
+                  <Product />
+                  <Footer />
+                </>
+              } />}
+              {ctx.isLogedin && <Route path='/Product/:id' element={
+                <>
+                  <Header />
+                  <ProductDetailsPage />
+                  <Footer />
+                </>
+              } />}
+              {ctx.isLogedin && <Route path='/Login/Cart/:userId' element={
+                <>
+                  <Header />
+                  <Cart />
+                  <Footer />
+                </>
+              } />}
+              <Route path='/About' element={
+                <>
+                  <Header />
+                  <About />
+                  <Footer />
+                </>
+              } />
+              
+             
+              <Route path='/Contact' element={
+                <>
+                  <Header />
+                  <ContactUs />
+                  <Footer />
+                </>
+              } />
+              <Route path='/Login' element={
+                <>
+                  <Header />
+                  <Login />
+                  <Footer />
+                </>
+              } />
+              <Route path='/SignUp' element={
+                <>
+                  <Header />
+                  <SignupForm />
+                  <Footer />
+                </>
+              } />
+              
+              {ctx.isLogedin && <Route path='/Login/:emailId' element={
+                <>
+                  <Header />
+                  <Account />
+                  <Footer />
+                </>
+              } />}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Root>
+        </Suspense>
+      </Container>
+      
+    </div>
+    
   );
 }
 
