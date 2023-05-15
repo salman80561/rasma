@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import WelcomePage from "./WelcomePage";
 
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (email === "" || password === "" || confirmPassword === "") {
@@ -36,8 +38,8 @@ function App() {
       });
 
       if (response.ok) {
+        setLoggedIn(true);
         console.log("User has successfully signed up.");
-        // You can redirect the user to another page or perform any other actions here
       } else {
         const data = await response.json();
         setError(data.error.message);
@@ -49,35 +51,41 @@ function App() {
 
   return (
     <div>
-      <h2>Registration</h2>
-      <form onSubmit={handleSubmit}>
-        {error && <div>{error}</div>}
+      {loggedIn ? (
+        <WelcomePage />
+      ) : (
         <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <h2>Registration</h2>
+          <form onSubmit={handleLogin}>
+            {error && <div>{error}</div>}
+            <div>
+              <label>Email:</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Password:</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Confirm Password:</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+            <button type="submit">Register</button>
+          </form>
         </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Confirm Password:</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Register</button>
-      </form>
+      )}
     </div>
   );
 }
