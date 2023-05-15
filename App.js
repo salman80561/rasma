@@ -1,101 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import Candy from './Candy';
-import Cart from './Cart';
+import React, { useState } from "react";
 
-const App = () => {
-  const [candies, setCandies] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
+function App() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    // Fetch candies from the API
-    fetchCandies();
-  }, []);
-
-  const fetchCandies = async () => {
-    try {
-      const response = await fetch('');
-      const data = await response.json();
-      setCandies(data);
-    } catch (error) {
-      console.error('Error fetching candies:', error);
-    }
-  };
-
-  const addToCart = (candy) => {
-    const updatedCartItems = [...cartItems, candy];
-    setCartItems(updatedCartItems);
-
-    // Store updated cart items in local storage
-    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-  };
-
-  const handleFormSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newCandy = { name, description, amount };
 
-    // Add the new candy to the API
-    addCandy(newCandy);
+    if (email === "" || password === "" || confirmPassword === "") {
+      setError("Please fill in all fields.");
+      return;
+    }
 
-    // Clear the input fields
-    setName('');
-    setDescription('');
-    setAmount('');
-  };
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
-  const addCandy = async (candy) => {
+    const apiKey = "<AIzaSyB26Esbr2mamAS_uIh7q29xDNHd_W9kOqs>";
+    const registrationEndpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyB26Esbr2mamAS_uIh7q29xDNHd_W9kOqs`;
+
     try {
-      const response = await fetch('https://crudcrud.com/api/e5e4ba1e77d84ec5be5a66b863737619/candies', {
-        method: 'POST',
+      const response = await fetch(registrationEndpoint, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(candy),
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }),
       });
-      const data = await response.json();
 
-      // Update the candies state with the new candy
-      setCandies([...candies, data]);
+      if (response.ok) {
+        console.log("User has successfully signed up.");
+        // You can redirect the user to another page or perform any other actions here
+      } else {
+        const data = await response.json();
+        setError(data.error.message);
+      }
     } catch (error) {
-      console.error('Error adding candy:', error);
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
     <div>
-      <h1>Salman Candy Shop</h1>
-      <form onSubmit={handleFormSubmit}>
-        <input
-          type="text"
-          placeholder="Candy Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <button type="submit">Add Candy</button>
+      <h2>Registration</h2>
+      <form onSubmit={handleSubmit}>
+        {error && <div>{error}</div>}
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>Confirm Password:</label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </div>
+        <button type="submit">Register</button>
       </form>
-      <div>
-        <h2>Candies</h2>
-        {candies.map((candy, index) => (
-          <Candy key={index} candy={candy} onAddToCart={addToCart} />
-        ))}
-      </div>
-      <Cart cartItems={cartItems} />
     </div>
   );
-};
+}
 
 export default App;
